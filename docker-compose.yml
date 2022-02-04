@@ -31,7 +31,5 @@ services:
     ports:
       - 13307:3306
     restart: always
-    links:
-      - mysqlMaster
     depends_on:
       - mysqlMaster
