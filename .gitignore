@@ -1,2 +1,5 @@
 # dump file
 my.tar.gz
+
+# modules
+node_modules/
