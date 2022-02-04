@@ -1,0 +1,37 @@
+version: '3'
+services:
+  mysqlMaster:
+    image: mysql:8
+    container_name: 'mysqlMaster'
+    volumes:
+      - ./master:/etc/mysql/conf.d
+    environment:
+      - TZ=Asia/Seoul
+      - PGID=0
+      - PUID=0
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=password
+    ports:
+      - 13306:3306
+    restart: always
+
+  mysqlSlave:
+    image: mysql:8
+    container_name: 'mysqlSlave'
+    volumes:
+      - ./slave:/etc/mysql/conf.d
+    environment:
+      - TZ=Asia/Seoul
+      - PGID=0
+      - PUID=0
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=password
+    ports:
+      - 13307:3306
+    restart: always
+    links:
+      - mysqlMaster
+    depends_on:
+      - mysqlMaster
