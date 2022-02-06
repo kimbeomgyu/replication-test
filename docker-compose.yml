@@ -4,7 +4,8 @@ services:
     image: mysql:8
     container_name: 'mysqlMaster'
     volumes:
-      - ./master:/etc/mysql/conf.d
+      - ./master/config:/etc/mysql/conf.d
+      - ./master/mysql-init-files/:/docker-entrypoint-initdb.d/
     environment:
       - TZ=Asia/Seoul
       - PGID=0
@@ -20,7 +21,8 @@ services:
     image: mysql:8
     container_name: 'mysqlSlave'
     volumes:
-      - ./slave:/etc/mysql/conf.d
+      - ./slave/config:/etc/mysql/conf.d
+      - ./slave/mysql-init-files/:/docker-entrypoint-initdb.d/
     environment:
       - TZ=Asia/Seoul
       - PGID=0
