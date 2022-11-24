@@ -1,5 +1,7 @@
 const mysql = require("mysql2");
 
+let endCount = Infinity;
+
 (async function () {
   const connection = mysql.createConnection({
     host: "localhost",
@@ -12,14 +14,22 @@ const mysql = require("mysql2");
   connection.connect();
   connection.query("SELECT count(*) as start FROM ttt", selectQuery(0));
   for (let i = 0; i < 1000; i++) {
-    connection.query("INSERT INTO test_db.ttt ( NAME ) VALUES ( 'kim' )", function (error) {
-      if (error) throw error;
+    connection.query(
+      "INSERT INTO test_db.ttt ( NAME ) VALUES ( 'kim' )",
+      function (error) {
+        if (error) throw error;
 
-      //   console.log("success:", i);
-    });
+        //   console.log("success:", i);
+      }
+    );
   }
 
-  connection.query("SELECT count(*) as end FROM ttt", selectQuery(0));
+  connection.query("SELECT count(*) as end FROM ttt", (error, results) => {
+    const logQuery = selectQuery(0);
+    logQuery(error, results);
+    const [row] = results;
+    endCount = row.count;
+  });
   connection.end();
 })();
 
@@ -34,18 +44,24 @@ const mysql = require("mysql2");
 
   connection.connect();
   let ms = 0;
-  while (true) {
+  let count = 0;
+  while (endCount > count) {
     ms += 10;
     await new Promise((r) => setTimeout(r, 10));
-    connection.query("SELECT count(*) as count FROM ttt", selectQuery(ms));
+    connection.query("SELECT count(*) as count FROM ttt", (error, results) => {
+      const logQuery = selectQuery(ms);
+      logQuery(error, results);
+      const [row] = results;
+      count = row.count;
+    });
   }
+  connection.end();
 })();
 
 function selectQuery(ms) {
   return (error, results) => {
     if (error) throw error;
-    for (const row of results) {
-      console.log("This is name: ", row, ms);
-    }
+    const [row] = results;
+    console.log("This is name: ", row, ms);
   };
 }
